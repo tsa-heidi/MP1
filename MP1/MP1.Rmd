@@ -127,18 +127,45 @@ This whole section relates to the **due diligence** and the **reaching for the s
 
 Implement crossvalidation from scratch here. In other words, don't use an existing function, but rather program your own. 
 
+
+https://stats.stackexchange.com/questions/61090/how-to-split-a-data-set-to-do-10-fold-cross-validation
 ```{r}
-# Step 1: Fit spline model to training data and save in model_spline object.
-fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = 10)
+#Randomly shuffle the data
+training<-training[sample(nrow(training)),]
 
-# Extract data frame of info based on fitted model:
-fitted_spline_model_points <- fitted_spline_model %>%
-  broom::augment()
-fitted_spline_model_points
+#Create 10 equally size folds
+folds <- cut(seq(1,nrow(training)),breaks=10,labels=FALSE)
 
-# Plot fitted model on training data:
-training_plot +
-geom_line(data = fitted_spline_model_points, aes(x = x, y = .fitted), col = "blue", size = 1)
+#Perform 10 fold cross validation
+for(i in 1:10){
+    #Segement your data by fold using the which() function 
+    testIndexes <- which(folds==i,arr.ind=TRUE)
+    testData <- training[testIndexes, ]
+    trainData <- training[-testIndexes, ]
+    
+    
+    #Use the test and train data partitions to cross validate
+  
+    fitted_spline_model <- smooth.spline(x = trainData$LotArea, y = trainData$SalePrice, df = 5)
+    
+    # Extract data frame of info based on fitted model:
+    fitted_spline_model_points <- fitted_spline_model %>%
+      broom::augment()
+    fitted_spline_model_points
+    
+    predicted_points <- predict(fitted_spline_model, x = testData$LotArea) %>%
+      as_tibble()
+
+    testData <- testData %>%
+      mutate(SalePrice_hat = predicted_points$y)
+
+    print(MLmetrics::RMSLE(y_pred = testData$SalePrice_hat, y_true = testData$SalePrice))
+    
+    #from here cross validation has been implimented for k=10. from here we need to get the average RMSLE of
+    #the entire output. after we do this we can start playing with the df and start comparing the different
+    #RMSLE values we get
+    
+}
 ```
 
 
@@ -146,13 +173,6 @@ geom_line(data = fitted_spline_model_points, aes(x = x, y = .fitted), col = "blu
 
 This subsection relates to the **point of diminishing returns** step of the grading scheme: a visualization like [Lec01 slides \#36](http://rudeboybert.rbind.io/talk/2019-01-13-Williams.pdf#page=36){target="_blank"} justifying your choice of optimal `df^*`. 
 
-
-this will calculate rmse for the crossvalidation that was done from scratch previously
-```{r}
-fitted_spline_model_points %>%
-  mutate(sq_residuals = .resid^2) %>%
-  summarize(rmse = (mean(sq_residuals)^.5))
-```
 
 
 
