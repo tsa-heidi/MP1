@@ -89,22 +89,24 @@ Do any data wrangling/transforming here:
 A univariate exploratory visualization of the outcome variable:
 
 ```{r}
-ggplot(training, aes(x = SalePrice))+
+outcome_var_plot <- ggplot(training, aes(x = SalePrice))+
   geom_histogram()
 ```
 
-A univariate exploratory visualization of the outcome variable:
+A univariate exploratory visualization of the predictor variable:
 
 ```{r}
-training_plot <- ggplot(training, aes(x = SalePrice, y = LotArea)) +
-  geom_point()
-training_plot
+predic_var_plot <- ggplot(training, aes(x = LotArea)) +
+  geom_histogram()
+
 ```
 
 A multivariate exploratory visualization of the *relationship* between the outcome and predictor variable.
 
 ```{r}
-
+training_plot <- ggplot(training, aes(x = LotArea, y = SalePrice)) +
+  geom_point()
+training_plot
 ```
 
 
