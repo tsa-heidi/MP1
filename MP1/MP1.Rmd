@@ -113,8 +113,6 @@ training_plot
 
 ***
 
-
-
 # Explore choices of df
 
 This whole section relates to the **due diligence** and the **reaching for the stars** steps of the grading scheme: choosing the degrees of freedom $df$ in a non-arbitrary fashion.
@@ -123,12 +121,24 @@ This whole section relates to the **due diligence** and the **reaching for the s
 
 ```
 
+
+
 ## Crossvalidation from scratch
 
 Implement crossvalidation from scratch here. In other words, don't use an existing function, but rather program your own. 
 
 ```{r}
+# Step 1: Fit spline model to training data and save in model_spline object.
+fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = 10)
 
+# Extract data frame of info based on fitted model:
+fitted_spline_model_points <- fitted_spline_model %>%
+  broom::augment()
+fitted_spline_model_points
+
+# Plot fitted model on training data:
+training_plot +
+geom_line(data = fitted_spline_model_points, aes(x = x, y = .fitted), col = "blue", size = 1)
 ```
 
 
@@ -136,9 +146,14 @@ Implement crossvalidation from scratch here. In other words, don't use an existi
 
 This subsection relates to the **point of diminishing returns** step of the grading scheme: a visualization like [Lec01 slides \#36](http://rudeboybert.rbind.io/talk/2019-01-13-Williams.pdf#page=36){target="_blank"} justifying your choice of optimal `df^*`. 
 
-```{r}
 
+this will calculate rmse for the crossvalidation that was done from scratch previously
+```{r}
+fitted_spline_model_points %>%
+  mutate(sq_residuals = .resid^2) %>%
+  summarize(rmse = (mean(sq_residuals)^.5))
 ```
+
 
 
 
