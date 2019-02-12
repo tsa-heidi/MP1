@@ -45,9 +45,9 @@ You will be submiting an entry to Kaggle's [House Prices: Advanced Regression Te
 Read in data provided by Kaggle for this competition. They are organized in the `data/` folder of this RStudio project:
 
 ```{r}
-training <- read_csv("data/train.csv")
-test <- read_csv("data/test.csv")
-sample_submission <- read_csv("data/sample_submission.csv")
+training <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/train.csv")
+test <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/test.csv")
+sample_submission <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/sample_submission.csv")
 ```
 
 Before performing any model fitting, you should always conduct an **exploratory data analysis** (EDA). This will help guide and inform your model fitting. 
@@ -89,13 +89,16 @@ Do any data wrangling/transforming here:
 A univariate exploratory visualization of the outcome variable:
 
 ```{r}
-
+ggplot(training, aes(x = SalePrice))+
+  geom_histogram()
 ```
 
 A univariate exploratory visualization of the outcome variable:
 
 ```{r}
-
+training_plot <- ggplot(training, aes(x = SalePrice, y = LotArea)) +
+  geom_point()
+training_plot
 ```
 
 A multivariate exploratory visualization of the *relationship* between the outcome and predictor variable.
