@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1549475895039.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "70D7294A",
+    "lastKnownWriteTime" : 1549475821,
+    "last_content_update" : 1549475821,
+    "path" : "~/Google Drive/Stuff/MP1/MP1.Rmd",
+    "project_path" : "MP1.Rmd",
+    "properties" : {
+        "cursorPosition" : "179,0",
+        "scrollLine" : "171"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

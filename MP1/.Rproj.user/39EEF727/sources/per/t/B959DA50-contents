@@ -1,0 +1,227 @@
+---
+title: "SDS/CSC 293 Mini-Project 1: Splines"
+author: "Group XX: WRITE YOUR NAMES HERE"
+date: "Wednesday, February 13^th^, 2019"
+output:
+  html_document:
+    highlight: tango
+    theme: cosmo
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: true
+    df_print: kable
+---
+
+```{r setup, include=FALSE}
+# Load all your packages here:
+library(tidyverse)
+library(scales)
+
+# Set default behavior for all code chunks here:
+knitr::opts_chunk$set(
+  echo = TRUE, warning = FALSE, message = FALSE,
+  fig.width = 16/2, fig.height = 9/2
+)
+
+# Set seed value of random number generator here. This is in order to get
+# "replicable" randomness, so that any results based on random sampling or
+# resampling are replicable everytime you knit this file. Why use a seed value
+# of 76? For no other reason than:
+# https://www.youtube.com/watch?v=xjJ7FheCkCU
+set.seed(76)
+```
+
+You will be submiting an entry to Kaggle's [House Prices: Advanced Regression Techniques](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/){target="_blank"} by fitting a **spline** model $\hat{f}(x)$ using a single numerical predictor $x$ of your choice. Note that splines are not a great model to use in practice since they only allow you to use one predictor variable at a time, however they are an excellent vehicle for thinking about the ideas behind crossvalidation.
+
+
+
+***
+
+
+
+# EDA
+
+Read in data provided by Kaggle for this competition. They are organized in the `data/` folder of this RStudio project:
+
+```{r}
+training <- read_csv("data/train.csv")
+test <- read_csv("data/test.csv")
+sample_submission <- read_csv("data/sample_submission.csv")
+```
+
+Before performing any model fitting, you should always conduct an exploratory data analysis. This will help guide and inform your model fitting. 
+
+## Look at your data!
+
+Always, ALWAYS, **ALWAYS** start by looking at your raw data. This gives you visual sense of what information you have to help build your predictive models. To get a full description of each variable, read the data dictionary in the `data_description.txt` file in the `data/` folder.
+
+Note that the following code chunk has `eval = FALSE` meaning "don't evaluate this chunk with knitting" because `.Rmd` files won't knit if they include a `View()`:
+
+```{r, eval = FALSE}
+View(training)
+glimpse(training)
+
+View(test)
+glimpse(test)
+```
+
+In particular, pay close attention to the variables and variable types in the
+`sample_submission.csv`. Your submission must match this exactly.
+
+```{r}
+glimpse(sample_submission)
+```
+
+## Data wrangling
+
+```{r}
+training <- training %>% 
+  select(Id, LotArea, SalePrice)
+
+test <- test %>% 
+  select(Id, LotArea)
+```
+
+
+
+## Visualizations
+
+A univariate exploratory visualization of the outcome variable:
+
+```{r}
+ggplot(training, aes(x = SalePrice)) +
+  geom_histogram() +
+  labs(x = "Sale Price in USD", title = "Outcome variable") +
+  scale_x_continuous(labels = scales::dollar)
+```
+
+A univariate exploratory visualization of the outcome variable:
+
+```{r}
+ggplot(training, aes(x = LotArea)) +
+  geom_histogram() +
+  labs(x = "Lot Size in Square Feet", title = "Predictor variable")
+```
+
+A multivariate exploratory visualization of the *relationship* between the outcome and predictor variable.
+
+```{r}
+ggplot(training, aes(x = LotArea, y = SalePrice)) +
+  geom_point() +
+  labs(x = "Lot Size in Square Feet", y = "Sale Price in USD") +
+  scale_y_continuous(labels = scales::dollar)
+```
+
+
+
+
+
+***
+
+
+
+# Choose your model
+
+
+
+
+
+***
+
+
+
+# Use your model
+
+```{r}
+df_star <- 10
+
+# Step 1: Fit model
+fitted_spline_model_star <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = df_star)
+
+# Convert your fitted model to a data frame of points
+fitted_spline_model_points_star <- fitted_spline_model_star %>%
+  broom::augment()
+
+# training <- training %>% 
+#   mutate(SalePriceHat = fitted_spline_model_points_star$.fitted)
+# 
+# 
+# training %>% 
+#   mutate(
+#     log_error = log(SalePrice + 1) - log(SalePriceHat + 1),
+#     squared_log_error = log_error^2
+#   ) %>% 
+#   summarize(mean_squared_log_error = mean(squared_log_error)) %>% 
+#   mutate(rmsle = sqrt(mean_squared_log_error))
+```
+
+
+## Visualize your model on training data
+
+```{r}
+ggplot(training, aes(x = LotArea, y = SalePrice)) +
+  geom_point() +
+  labs(x = "Lot Size in Square Feet", y = "Sale Price in USD", title = "Training data") +
+  scale_y_continuous(labels = scales::dollar) +
+  geom_line(data = fitted_spline_model_points_star, aes(x = x, y = .fitted), col = "blue", size = 1)
+```
+
+
+## Make predictions on test data
+
+```{r}
+predicted_points <- predict(fitted_spline_model_star, x = test$LotArea) %>%
+  as_tibble()
+```
+
+
+## Estimated RMSE
+
+```{r}
+training <- training %>%
+  mutate(SalePriceHat = fitted_spline_model_points_star$.fitted)
+
+training %>%
+  mutate(
+    log_error = log(SalePrice + 1) - log(SalePriceHat + 1),
+    squared_log_error = log_error^2
+  ) %>%
+  summarize(mean_squared_log_error = mean(squared_log_error)) %>%
+  mutate(rmsle = sqrt(mean_squared_log_error))
+```
+
+
+
+***
+
+
+
+# Submission
+
+## Create your submission CSV
+
+```{r}
+avg_SalePrice <- mean(training$SalePrice)
+
+submission <- sample_submission %>% 
+  mutate(SalePrice = avg_SalePrice)
+
+write_csv(submission, path = "data/submission.csv")
+```
+
+## Screenshot of your Kaggle score
+
+Our score based on our submission's "Root Mean Squared Logarithmic Error" was 0.42918.
+
+![](score_screenshot.png){ width=100% }
+
+
+## Comparison of your estimated score & your Kaggle score
+
+
+
+
+
+
+
