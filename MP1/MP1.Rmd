@@ -284,8 +284,8 @@ The following code creates a submission where the predicted sale price for all h
 ```{r}
 
 submission <- test %>%
-  mutate(SalePrice_hat = predicted_points$y) %>%
-  select(Id,SalePrice_hat)
+  mutate(SalePrice = predicted_points$y) %>%
+  select(Id,SalePrice)
 
 
 write_csv(submission, path = "data/submission.csv")
