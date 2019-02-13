@@ -151,7 +151,7 @@ for (d in df_lst){
   RMSLE_hat_list <- c()
   
   #Perform 10 fold cross validation
-  for(i in 2:10){
+  for(i in 1:10){
     
     
       #Segement your data by fold using the which() function 
@@ -233,6 +233,19 @@ Visualize your fitted splines model $\widehat{f}()$ with degrees of freedom `df_
 
 ```{r}
 
+
+fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = 22)
+
+# Extract data frame of info based on fitted model:
+fitted_spline_model_points <- fitted_spline_model %>%
+  broom::augment()
+fitted_spline_model_points
+
+# Plot fitted model on training data:
+training_plot +
+  geom_line(data = fitted_spline_model_points, aes(x = x, y = .fitted), col = "blue", size = 1)
+
+
 ```
 
 
@@ -241,8 +254,15 @@ Visualize your fitted splines model $\widehat{f}()$ with degrees of freedom `df_
 Make your predictions/get your predicted values $\widehat{y}$ on the test data. 
 
 ```{r}
+predicted_points <- predict(fitted_spline_model, x = test$LotArea) %>%
+  as_tibble()
+predicted_points
 
+# Plot!
+ggplot() +
+  geom_point(data = predicted_points, aes(x = x, y = y)) 
 ```
+
 
 
 
@@ -257,8 +277,11 @@ Make your predictions/get your predicted values $\widehat{y}$ on the test data.
 The following code creates a submission where the predicted sale price for all houses in the test set is just the average sale price of the training data. Change the code so that you are submitted your spline model fitted predictions. 
 
 ```{r}
-submission <- sample_submission %>% 
-  mutate(SalePrice =  mean(training$SalePrice))
+
+submission <- test %>%
+  mutate(SalePrice_hat = predicted_points$y) %>%
+  select(LotArea,SalePrice_hat)
+
 
 write_csv(submission, path = "data/submission.csv")
 ```
