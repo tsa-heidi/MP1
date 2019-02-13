@@ -53,7 +53,6 @@ sample_submission <- read_csv("data/sample_submission.csv")
 ```
 
 
-
 Before performing any model fitting, you should always conduct an **exploratory data analysis** (EDA). This will help guide and inform your model fitting. 
 
 
@@ -83,6 +82,18 @@ glimpse(sample_submission)
 
 Do any data wrangling/transforming here:
 
+```{r}
+training <- training %>%
+  filter(Id == 314)
+```
+
+
+```{r}
+training <- training %>%
+  filter(LotArea < 100000)
+```
+
+
 
 ## Visualizations
 
@@ -91,7 +102,6 @@ A univariate exploratory visualization of the outcome variable:
 ```{r}
 outcome_var_plot <- ggplot(training, aes(x = SalePrice))+
   geom_histogram()
-outcome_var_plot
 ```
 
 A univariate exploratory visualization of the predictor variable:
@@ -99,7 +109,7 @@ A univariate exploratory visualization of the predictor variable:
 ```{r}
 predic_var_plot <- ggplot(training, aes(x = LotArea)) +
   geom_histogram()
-predic_var_plot
+
 ```
 
 A multivariate exploratory visualization of the *relationship* between the outcome and predictor variable.
@@ -137,14 +147,14 @@ training<-training[sample(nrow(training)),]
 folds <- cut(seq(1,nrow(training)),breaks=10,labels=FALSE)
 
 # list of df we want to try
-df_lst <- seq(2,35, by = 1)
+df_lst <- seq(2,50, by = 1)
 
 #create a list of avg_rmsle_hat values found from differnt df
 avg_rmsle_hat_lst <- c()
 
 for (d in df_lst){
   
-  #keep a list of RMSLE_hat for this fi
+  #keep a list of RMSLE_hat for this fold
   RMSLE_hat_list <- c()
   
   #Perform 10 fold cross validation
@@ -164,16 +174,23 @@ for (d in df_lst){
       # Extract data frame of info based on fitted model:
       fitted_spline_model_points <- fitted_spline_model %>%
         broom::augment()
-      
+      fitted_spline_model_points
       
       predicted_points <- predict(fitted_spline_model, x = testData$LotArea) %>%
         as_tibble()
   
       testData <- testData %>%
-        mutate(SalePrice_hat = predicted_points$y)
+        mutate(SalePrice_hat = predicted_points$y) 
+      
+      
   
       RMSLE_hat <- (MLmetrics::RMSLE(y_pred = testData$SalePrice_hat, y_true = testData$SalePrice))
+      
+      
+      #message("i: ", i, " d: ", d, " RMSLE: ",  RMSLE_hat)
      
+      #arrange(testData, SalePrice_hat)
+      
       
       #add the new RMSLE_hat to the list of RMSLE_hat values     
       RMSLE_hat_list <- c(RMSLE_hat_list, RMSLE_hat)
@@ -220,8 +237,7 @@ message(optimal_df)
 Set `df_star` to be the degrees of freedom you'll use to make your predictions, arbitrarily chosen or not.
 
 ```{r}
-df_star <- 22
-
+df_star <- optimal_df
 ```
 
 
@@ -230,7 +246,8 @@ df_star <- 22
 Visualize your fitted splines model $\widehat{f}()$ with degrees of freedom `df_star` on the training data. Recall we can only create this plot for the training data because we only have the outcome variable $y$ for the training data.
 
 ```{r}
-fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = 22)
+fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = optimal_df)
+
 
 # Extract data frame of info based on fitted model:
 fitted_spline_model_points <- fitted_spline_model %>%
@@ -243,6 +260,12 @@ training_plot +
 ```
 
 
+Predict RMSLE
+```{r}
+RMSLE_hat_kaggle <- (MLmetrics::RMSLE(y_pred = fitted_spline_model_points$.fitted, y_true = fitted_spline_model_points$y))
+```
+hello
+
 ## Make predictions on test data
 
 Make your predictions/get your predicted values $\widehat{y}$ on the test data. 
@@ -250,6 +273,7 @@ Make your predictions/get your predicted values $\widehat{y}$ on the test data.
 ```{r}
 predicted_points <- predict(fitted_spline_model, x = test$LotArea) %>%
   as_tibble()
+predicted_points
 
 
 # Plot!
@@ -284,7 +308,6 @@ write_csv(submission, path = "data/submission.csv")
 
 The "Root Mean Squared Logarithmic Error" score based on my example submission was 0.42918. Replace `score_screenshot.png` with a screenshot of your score. 
 
-![](score_screenshot.png){ width=100% }
 
 
 ## Comparing your estimated score to your Kaggle score
