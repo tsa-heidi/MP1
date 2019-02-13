@@ -91,6 +91,7 @@ A univariate exploratory visualization of the outcome variable:
 ```{r}
 outcome_var_plot <- ggplot(training, aes(x = SalePrice))+
   geom_histogram()
+outcome_var_plot
 ```
 
 A univariate exploratory visualization of the predictor variable:
@@ -98,7 +99,7 @@ A univariate exploratory visualization of the predictor variable:
 ```{r}
 predic_var_plot <- ggplot(training, aes(x = LotArea)) +
   geom_histogram()
-
+predic_var_plot
 ```
 
 A multivariate exploratory visualization of the *relationship* between the outcome and predictor variable.
