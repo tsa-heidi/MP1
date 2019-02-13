@@ -132,51 +132,76 @@ https://stats.stackexchange.com/questions/61090/how-to-split-a-data-set-to-do-10
 ```{r}
 
 #Randomly shuffle the data
+set.seed(21)
+
 training<-training[sample(nrow(training)),]
 
 #Create 10 equally size folds
 folds <- cut(seq(1,nrow(training)),breaks=10,labels=FALSE)
 
+# list of df we want to try
+df_lst <- seq(1,35, by = 1)
 
-#keep a list of RMSLE_hat
-RMSLE_list <- c()
+#create a list of avg_rmsle_hat values found from differnt df
+avg_rmsle_hat_lst <- c()
 
-#Perform 10 fold cross validation
-for(i in 1:10){
-    #Segement your data by fold using the which() function 
-    testIndexes <- which(folds==i,arr.ind=TRUE)
-    testData <- training[testIndexes, ]
-    trainData <- training[-testIndexes, ]
-    
-    
-    #Use the test and train data partitions to cross validate
+for (d in df_lst){
   
-    fitted_spline_model <- smooth.spline(x = trainData$LotArea, y = trainData$SalePrice, df = 5)
+  #keep a list of RMSLE_hat for this fi
+  RMSLE_hat_list <- c()
+  
+  #Perform 10 fold cross validation
+  for(i in 2:10){
     
-    # Extract data frame of info based on fitted model:
-    fitted_spline_model_points <- fitted_spline_model %>%
-      broom::augment()
-    fitted_spline_model_points
     
-    predicted_points <- predict(fitted_spline_model, x = testData$LotArea) %>%
-      as_tibble()
-
-    testData <- testData %>%
-      mutate(SalePrice_hat = predicted_points$y)
-
-    RMSLE_hat <- (MLmetrics::RMSLE(y_pred = testData$SalePrice_hat, y_true = testData$SalePrice))
+      #Segement your data by fold using the which() function 
+      testIndexes <- which(folds==i,arr.ind=TRUE)
+      testData <- training[testIndexes, ]
+      trainData <- training[-testIndexes, ]
+      
+      
+      #Use the test and train data partitions to cross validate
     
-    RMSLE_list <- c(RMSE_list, RMSE_hat)
+      fitted_spline_model <- smooth.spline(x = trainData$LotArea, y = trainData$SalePrice, df = d)
+      
+      # Extract data frame of info based on fitted model:
+      fitted_spline_model_points <- fitted_spline_model %>%
+        broom::augment()
+      fitted_spline_model_points
+      
+      predicted_points <- predict(fitted_spline_model, x = testData$LotArea) %>%
+        as_tibble()
+  
+      testData <- testData %>%
+        mutate(SalePrice_hat = predicted_points$y)
+  
+      RMSLE_hat <- (MLmetrics::RMSLE(y_pred = testData$SalePrice_hat, y_true = testData$SalePrice))
+     
+      
+      #add the new RMSLE_hat to the list of RMSLE_hat values     
+      RMSLE_hat_list <- c(RMSLE_hat_list, RMSLE_hat)
+      
+  }
+  
+#find the average RMSE and add to avg_rmsle_hat_lst
+  avg_rmsle_hat_lst <- c(avg_rmsle_hat_lst, mean(RMSLE_hat_list)) 
 
-#find the average RMSE
-avg_RMSE = mean(RMSLE_list)   
-
-
-    #from here cross validation has been implimented for k=10. from here we need to get the average RMSLE of
-    #the entire output. after we do this we can start playing with the df and start comparing the different
-    #RMSLE values we get
-    
 }
+```
+
+
+```{r}
+#make a dataframe from list of df and rmsle values 
+dataf <- data.frame(df = df_lst, RMSLE = avg_rmsle_hat_lst)
+```
+
+```{r}
+optimal_df_plot <- ggplot(dataf, aes(x = df ,y = RMSLE)) +
+  geom_point()
+optimal_df_plot
+
+optimal_df <- which.min(avg_rmsle_hat_lst)+1
+message(optimal_df)
 ```
 
 
