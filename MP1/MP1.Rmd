@@ -1,6 +1,6 @@
 ---
 title: "SDS/CSC 293 Mini-Project 1: Splines"
-author: "Group XX: WRITE YOUR NAMES HERE"
+author: "Group 2: Heidi Tsang, Karen Santamaria"
 date: "Wednesday, February 13^th^, 2019"
 output:
   html_document:
@@ -52,6 +52,8 @@ test <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/M
 sample_submission <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/sample_submission.csv")
 ```
 
+
+
 Before performing any model fitting, you should always conduct an **exploratory data analysis** (EDA). This will help guide and inform your model fitting. 
 
 
@@ -80,10 +82,6 @@ glimpse(sample_submission)
 ## Data wrangling
 
 Do any data wrangling/transforming here:
-
-```{r}
-
-```
 
 
 ## Visualizations
@@ -118,10 +116,6 @@ training_plot
 # Explore choices of df
 
 This whole section relates to the **due diligence** and the **reaching for the stars** steps of the grading scheme: choosing the degrees of freedom $df$ in a non-arbitrary fashion.
-
-```{r}
-
-```
 
 
 
@@ -197,6 +191,13 @@ for (d in df_lst){
 dataf <- data.frame(df = df_lst, RMSLE = avg_rmsle_hat_lst)
 ```
 
+
+
+## Visualization justifying your choice of "optimal" df
+
+This subsection relates to the **point of diminishing returns** step of the grading scheme: a visualization like [Lec01 slides \#36](http://rudeboybert.rbind.io/talk/2019-01-13-Williams.pdf#page=36){target="_blank"} justifying your choice of optimal `df^*`. 
+
+
 ```{r}
 optimal_df_plot <- ggplot(dataf, aes(x = df ,y = RMSLE)) +
   geom_point()
@@ -205,12 +206,6 @@ optimal_df_plot
 optimal_df <- which.min(avg_rmsle_hat_lst)+1
 message(optimal_df)
 ```
-
-
-## Visualization justifying your choice of "optimal" df
-
-This subsection relates to the **point of diminishing returns** step of the grading scheme: a visualization like [Lec01 slides \#36](http://rudeboybert.rbind.io/talk/2019-01-13-Williams.pdf#page=36){target="_blank"} justifying your choice of optimal `df^*`. 
-
 
 
 
@@ -224,7 +219,7 @@ This subsection relates to the **point of diminishing returns** step of the grad
 Set `df_star` to be the degrees of freedom you'll use to make your predictions, arbitrarily chosen or not.
 
 ```{r}
-df_star <- 10
+df_star <- 22
 
 ```
 
@@ -234,8 +229,6 @@ df_star <- 10
 Visualize your fitted splines model $\widehat{f}()$ with degrees of freedom `df_star` on the training data. Recall we can only create this plot for the training data because we only have the outcome variable $y$ for the training data.
 
 ```{r}
-
-
 fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePrice, df = 22)
 
 # Extract data frame of info based on fitted model:
@@ -246,8 +239,6 @@ fitted_spline_model_points
 # Plot fitted model on training data:
 training_plot +
   geom_line(data = fitted_spline_model_points, aes(x = x, y = .fitted), col = "blue", size = 1)
-
-
 ```
 
 
