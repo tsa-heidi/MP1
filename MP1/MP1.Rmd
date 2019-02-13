@@ -142,7 +142,7 @@ training<-training[sample(nrow(training)),]
 folds <- cut(seq(1,nrow(training)),breaks=10,labels=FALSE)
 
 # list of df we want to try
-df_lst <- seq(1,35, by = 1)
+df_lst <- seq(2,35, by = 1)
 
 #create a list of avg_rmsle_hat values found from differnt df
 avg_rmsle_hat_lst <- c()
