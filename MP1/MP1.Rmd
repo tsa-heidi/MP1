@@ -47,9 +47,9 @@ You will be submiting an entry to Kaggle's [House Prices: Advanced Regression Te
 Read in data provided by Kaggle for this competition. They are organized in the `data/` folder of this RStudio project:
 
 ```{r}
-training <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/train.csv")
-test <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/test.csv")
-sample_submission <- read_csv("C:/Users/heidi/OneDrive/Documents/College/Semester 5/CSC 293/MP1/MP1/data/sample_submission.csv")
+training <- read_csv("data/train.csv")
+test <- read_csv("data/test.csv")
+sample_submission <- read_csv("data/sample_submission.csv")
 ```
 
 
@@ -163,7 +163,7 @@ for (d in df_lst){
       # Extract data frame of info based on fitted model:
       fitted_spline_model_points <- fitted_spline_model %>%
         broom::augment()
-      fitted_spline_model_points
+      
       
       predicted_points <- predict(fitted_spline_model, x = testData$LotArea) %>%
         as_tibble()
@@ -234,7 +234,7 @@ fitted_spline_model <- smooth.spline(x = training$LotArea, y = training$SalePric
 # Extract data frame of info based on fitted model:
 fitted_spline_model_points <- fitted_spline_model %>%
   broom::augment()
-fitted_spline_model_points
+
 
 # Plot fitted model on training data:
 training_plot +
@@ -249,7 +249,7 @@ Make your predictions/get your predicted values $\widehat{y}$ on the test data.
 ```{r}
 predicted_points <- predict(fitted_spline_model, x = test$LotArea) %>%
   as_tibble()
-predicted_points
+
 
 # Plot!
 ggplot() +
