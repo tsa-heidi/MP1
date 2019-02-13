@@ -251,7 +251,7 @@ Predict RMSLE
 ```{r}
 RMSLE_hat_kaggle <- (MLmetrics::RMSLE(y_pred = fitted_spline_model_points$.fitted, y_true = fitted_spline_model_points$y))
 ```
-hello
+
 
 ## Make predictions on test data
 
