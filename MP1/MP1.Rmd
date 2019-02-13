@@ -295,7 +295,7 @@ write_csv(submission, path = "data/submission.csv")
 
 The "Root Mean Squared Logarithmic Error" score based on my example submission was 0.42918. Replace `score_screenshot.png` with a screenshot of your score. 
 
-
+![](score_screenshot.png){ width=100% }
 
 ## Comparing your estimated score to your Kaggle score
 
