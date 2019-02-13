@@ -269,7 +269,7 @@ ggplot() +
 ```
 
 
-
+Approx RMSLE_hat
 
 ***
 
@@ -285,7 +285,7 @@ The following code creates a submission where the predicted sale price for all h
 
 submission <- test %>%
   mutate(SalePrice_hat = predicted_points$y) %>%
-  select(LotArea,SalePrice_hat)
+  select(Id,SalePrice_hat)
 
 
 write_csv(submission, path = "data/submission.csv")
