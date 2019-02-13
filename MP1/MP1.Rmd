@@ -269,7 +269,7 @@ ggplot() +
 ```
 
 
-Approx RMSLE_hat
+Approx RMSLE_hat on Kaggle: 0.3576475
 
 ***
 
