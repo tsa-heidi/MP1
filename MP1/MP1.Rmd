@@ -82,16 +82,7 @@ glimpse(sample_submission)
 
 Do any data wrangling/transforming here:
 
-```{r}
-training <- training %>%
-  filter(Id == 314)
-```
 
-
-```{r}
-training <- training %>%
-  filter(LotArea < 100000)
-```
 
 
 
@@ -135,19 +126,17 @@ This whole section relates to the **due diligence** and the **reaching for the s
 Implement crossvalidation from scratch here. In other words, don't use an existing function, but rather program your own. 
 
 
-https://stats.stackexchange.com/questions/61090/how-to-split-a-data-set-to-do-10-fold-cross-validation
+https://stats.stackexchange.com/questions/61090/how-to-split-a-data-set-to-do-10-fold-cross-validation [^1]
 ```{r}
 
 #Randomly shuffle the data
-set.seed(21)
-
 training<-training[sample(nrow(training)),]
 
 #Create 10 equally size folds
 folds <- cut(seq(1,nrow(training)),breaks=10,labels=FALSE)
 
 # list of df we want to try
-df_lst <- seq(2,50, by = 1)
+df_lst <- seq(2,30, by = 1)
 
 #create a list of avg_rmsle_hat values found from differnt df
 avg_rmsle_hat_lst <- c()
@@ -174,23 +163,22 @@ for (d in df_lst){
       # Extract data frame of info based on fitted model:
       fitted_spline_model_points <- fitted_spline_model %>%
         broom::augment()
-      fitted_spline_model_points
-      
+
       predicted_points <- predict(fitted_spline_model, x = testData$LotArea) %>%
         as_tibble()
+      
+      predicted_points$y[predicted_points$y < 0] = 0  
   
       testData <- testData %>%
-        mutate(SalePrice_hat = predicted_points$y) 
+        mutate(SalePrice_hat = predicted_points$y)
+      
+      
       
       
   
       RMSLE_hat <- (MLmetrics::RMSLE(y_pred = testData$SalePrice_hat, y_true = testData$SalePrice))
       
-      
-      #message("i: ", i, " d: ", d, " RMSLE: ",  RMSLE_hat)
-     
-      #arrange(testData, SalePrice_hat)
-      
+
       
       #add the new RMSLE_hat to the list of RMSLE_hat values     
       RMSLE_hat_list <- c(RMSLE_hat_list, RMSLE_hat)
@@ -222,7 +210,6 @@ optimal_df_plot <- ggplot(dataf, aes(x = df ,y = RMSLE)) +
 optimal_df_plot
 
 optimal_df <- which.min(avg_rmsle_hat_lst)+1
-message(optimal_df)
 ```
 
 
@@ -273,7 +260,7 @@ Make your predictions/get your predicted values $\widehat{y}$ on the test data.
 ```{r}
 predicted_points <- predict(fitted_spline_model, x = test$LotArea) %>%
   as_tibble()
-predicted_points
+
 
 
 # Plot!
